@@ -1,0 +1,139 @@
+[gd_scene load_steps=24 format=3 uid="uid://bmn6qbtdd81ih"]
+
+[ext_resource type="Script" uid="uid://d2k1feme1crgf" path="res://main.gd" id="1_h2yge"]
+[ext_resource type="Script" uid="uid://dyrxonufmdwca" path="res://addons/eox_compute/classes/compositor_effect.gd" id="4_1bvp3"]
+[ext_resource type="Shader" uid="uid://ct0dduacspyos" path="res://addons/eox_sky/gdshaders/sky_shader.gdshader" id="4_efxa6"]
+[ext_resource type="Script" uid="uid://do21fbv5osh3y" path="res://addons/eox_sky/sky.gd" id="5_lquwl"]
+[ext_resource type="Script" uid="uid://8fkvq2wtja2k" path="res://addons/eox_sky/params/planet.gd" id="6_5vw27"]
+[ext_resource type="Script" uid="uid://b4q2qikjoumg6" path="res://addons/eox_sky/params/atmosphere.gd" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://c4mngtjx7i0rq" path="res://addons/eox_sky/params/render.gd" id="7_272bh"]
+[ext_resource type="Script" uid="uid://cw5y0jwoauxh6" path="res://addons/eox_sky/params/sky.gd" id="8_kek77"]
+[ext_resource type="PackedScene" uid="uid://kpmichx0vmr8" path="res://assets/landscape/hangzhou.gltf" id="11_efxa6"]
+
+[sub_resource type="Texture2DRD" id="Texture2DRD_efxa6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dg77c"]
+shader = ExtResource("4_efxa6")
+shader_parameter/_value = 1.0
+shader_parameter/_octmap = SubResource("Texture2DRD_efxa6")
+
+[sub_resource type="Sky" id="Sky_4c57u"]
+sky_material = SubResource("ShaderMaterial_dg77c")
+process_mode = 2
+
+[sub_resource type="Environment" id="Environment_0xm2m"]
+sky = SubResource("Sky_4c57u")
+ambient_light_source = 3
+reflected_light_source = 2
+tonemap_mode = 3
+ssr_enabled = true
+ssr_depth_tolerance = 2.01
+fog_sun_scatter = 0.14
+fog_density = 0.0001
+fog_height = 455.96
+fog_height_density = 0.001
+volumetric_fog_density = 0.0095
+volumetric_fog_sky_affect = 0.0
+
+[sub_resource type="CameraAttributesPhysical" id="CameraAttributesPhysical_kek77"]
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_lquwl"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 1
+access_resolved_color = false
+access_resolved_depth = false
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("4_1bvp3")
+metadata/_custom_type_script = "uid://dyrxonufmdwca"
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_kek77"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("4_1bvp3")
+metadata/_custom_type_script = "uid://dyrxonufmdwca"
+
+[sub_resource type="Compositor" id="Compositor_0xm2m"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_lquwl"), SubResource("CompositorEffect_kek77")])
+
+[sub_resource type="Resource" id="Resource_kek77"]
+script = ExtResource("7_272bh")
+_exposure_multiplier = 3.0
+_sun_altitude = 0.10471975511965978
+_sun_azimuth = -2.0254545969394195
+metadata/_custom_type_script = "uid://c4mngtjx7i0rq"
+
+[sub_resource type="Resource" id="Resource_5vw27"]
+script = ExtResource("6_5vw27")
+metadata/_custom_type_script = "uid://8fkvq2wtja2k"
+
+[sub_resource type="Resource" id="Resource_efxa6"]
+script = ExtResource("8_kek77")
+_sun_radiance = 3.14159
+metadata/_custom_type_script = "uid://cw5y0jwoauxh6"
+
+[sub_resource type="Resource" id="Resource_4c57u"]
+script = ExtResource("6_7mycd")
+_ozone_rel_density_scale = 2.5
+metadata/_custom_type_script = "uid://b4q2qikjoumg6"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_efxa6"]
+albedo_color = Color(0.362314, 0.441466, 0.485017, 1)
+metallic_specular = 1.0
+roughness = 0.1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_dg77c"]
+material = SubResource("StandardMaterial3D_efxa6")
+size = Vector2(10000, 10000)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_h2yge")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0xm2m")
+camera_attributes = SubResource("CameraAttributesPhysical_kek77")
+compositor = SubResource("Compositor_0xm2m")
+
+[node name="EoxSky" type="Node" parent="."]
+script = ExtResource("5_lquwl")
+_render_params = SubResource("Resource_kek77")
+_planet_params = SubResource("Resource_5vw27")
+_sky_params = SubResource("Resource_efxa6")
+_atmos_params = SubResource("Resource_4c57u")
+metadata/_custom_type_script = "uid://do21fbv5osh3y"
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.43915513, 0.093909554, -0.8934897, 0, 0.9945219, 0.104528464, 0.8984113, -0.04590421, 0.4367494, 22.369041, 7.696556, -35.1885)
+light_color = Color(0.7740564, 0.5606278, 0.33910814, 1)
+shadow_enabled = true
+shadow_bias = 0.05
+directional_shadow_split_1 = 0.01
+directional_shadow_split_2 = 0.05
+directional_shadow_max_distance = 10000.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-0.24022812, -0.016941298, 0.97056866, 0, 0.99984777, 0.017452363, -0.9707165, 0.004192549, -0.24019153, 18.684242, 6.030258, -26.623)
+fov = 27.1
+far = 50000.0
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2770.669, -0.36574554, 1592.64)
+mesh = SubResource("PlaneMesh_dg77c")
+
+[node name="Landscape" parent="." instance=ExtResource("11_efxa6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3102.7285, -20.132744, 1539.76)
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2231926, 0)
+double_sided = false
+text = "You may want to change editor
+camera's z-far to 20000 in Views/Settings
+
+Also, I have increased shadow map size which may have
+performance issues."
